@@ -5,13 +5,24 @@ app = Flask("Emotion Detection")
 
 @app.route("/")
 def render_index_page():
-    """Render the main index page"""
+    """
+    Renders the main index page where the user can input text for emotion analysis.
+
+    Returns:
+        Rendered HTML template of the index page.
+    """
     return render_template('index.html')
 
 @app.route("/emotionDetector", methods=["GET"])
 def emotion_detector_route():
     """
-    Process the text and return emotion analysis results
+    Handles the GET request to analyze emotions from the provided text.
+
+    This function receives the text from the client, processes it using the emotion_detector,
+    and returns the emotion analysis results or an error message if the input is invalid.
+
+    Returns:
+        JSON response containing either the emotion analysis results or an error message.
     """
     # Get the text from the URL query parameters
     text = request.args.get('textToAnalyze', '')
@@ -33,4 +44,9 @@ def emotion_detector_route():
     return jsonify({"response": response_text})
 
 if __name__ == "__main__":
+    """
+    Starts the Flask application to listen for incoming requests.
+    
+    The application runs on localhost, port 5000 in debug mode.
+    """
     app.run(host='localhost', port=5000, debug=True)
