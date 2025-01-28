@@ -3,13 +3,13 @@ import json
 
 def emotion_detector(text_to_analyze):
     """
-    Detects emotions in text using Watson NLP EmotionPredict function.
+    Detects emotions in text using Watson NLP EmotionPredict function and formats the output.
     
     Args:
         text_to_analyze (str): The text to analyze for emotional content
         
     Returns:
-        dict: The emotional analysis results from Watson NLP
+        dict: Formatted emotional analysis results including dominant emotion
     """
     
     # API endpoint
@@ -34,8 +34,28 @@ def emotion_detector(text_to_analyze):
         # Check if request was successful
         response.raise_for_status()
         
-        # Return the text attribute of the response
-        return response.text
+        # Parse the JSON response
+        response_dict = json.loads(response.text)
+        
+        # Extract emotion scores
+        emotions = response_dict['emotionPredictions'][0]['emotion']
+        
+        # Create formatted output dictionary
+        output = {
+            'anger': emotions['anger'],
+            'disgust': emotions['disgust'],
+            'fear': emotions['fear'],
+            'joy': emotions['joy'],
+            'sadness': emotions['sadness']
+        }
+        
+        # Find dominant emotion (emotion with highest score)
+        dominant_emotion = max(output.items(), key=lambda x: x[1])[0]
+        output['dominant_emotion'] = dominant_emotion
+        
+        return output
         
     except requests.exceptions.RequestException as e:
         return f"Error making request: {str(e)}"
+    except (json.JSONDecodeError, KeyError, IndexError) as e:
+        return f"Error processing response: {str(e)}"
