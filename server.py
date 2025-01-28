@@ -22,6 +22,9 @@ def emotion_detector_route():
     # Get emotion predictions
     result = emotion_detector(text)
     
+    if result['dominant_emotion'] is None:
+        return jsonify({"error": "Invalid text! Please try again!"}), 400
+    
     # Format the response string
     response_text = f"For the given statement, the system response is 'anger': {result['anger']}, \
 'disgust': {result['disgust']}, 'fear': {result['fear']}, 'joy': {result['joy']} and \

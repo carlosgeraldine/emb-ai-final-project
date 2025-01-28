@@ -1,12 +1,31 @@
-let RunSentimentAnalysis = ()=>{
-    textToAnalyze = document.getElementById("textToAnalyze").value;
+function RunSentimentAnalysis() {
+    var textToAnalyze = document.getElementById("textToAnalyze").value.trim();
+    var systemResponseElement = document.getElementById("system_response");
 
-    let xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("system_response").innerHTML = xhttp.responseText;
-        }
-    };
-    xhttp.open("GET", "emotionDetector?textToAnalyze"+"="+textToAnalyze, true);
-    xhttp.send();
+    // Clear previous responses
+    systemResponseElement.innerHTML = '';
+
+    if (textToAnalyze === '') {
+        systemResponseElement.innerHTML = "<p style='color: red;'>Please enter some text to analyze.</p>";
+        return;
+    }
+
+    // Make the GET request to the Flask backend
+    fetch(`/emotionDetector?textToAnalyze=${encodeURIComponent(textToAnalyze)}`)
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(error => {
+                    systemResponseElement.innerHTML = `<p style='color: red;'>${error.error}</p>`;
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.response) {
+                systemResponseElement.innerHTML = `<p>${data.response}</p>`;
+            }
+        })
+        .catch(error => {
+            systemResponseElement.innerHTML = `<p style='color: red;'>Error: ${error.message}</p>`;
+        });
 }
